@@ -2,20 +2,31 @@ import { useEffect, useState } from "react";
 import Card from "./components/Card";
 import Search from "./components/Search";
 import { api, appId } from "./api";
+import Clock from "react-clock";
+import 'react-clock/dist/Clock.css';
 
 function App() {
 
-  const [city, setCity] = useState("Gunma")
   const [data, setData] = useState({})
 
-  const fetchData = async () => {
+  const [value, setValue] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setValue(new Date()), 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const fetchData = async (city) => {
     const res = await api.get(`/weather?q=${city}&appId=${appId}&units=metric`)
 
     setData(res.data)
   }
 
   useEffect(() => {
-    fetchData()
+    fetchData('Gunma')
   }, [])
 
   return (
@@ -27,8 +38,8 @@ function App() {
             'minWidth': '500px'
           }
         }>
-
-          <Search />
+          <Search fetchData={fetchData} />
+          <Clock value={value} />
           <Card data={data} />
         </div>
       </div>
